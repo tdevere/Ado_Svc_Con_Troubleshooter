@@ -1,0 +1,39 @@
+# PowerShell Module Logs
+logs/
+*.log
+*.json
+
+# Sensitive Data
+*.pat
+*token*
+secrets/
+
+# PowerShell Gallery Publishing
+*.nupkg
+
+# Build Artifacts
+bin/
+obj/
+dist/
+
+# IDE and Editor Files
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test Results
+TestResults/
+*.trx
+
+# Temp Files
+temp/
+tmp/
+*.tmp
