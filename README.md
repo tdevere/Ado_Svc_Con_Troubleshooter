@@ -4,6 +4,8 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/tdevere/Ado_Svc_Con_Troubleshooter)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+> **⚠️ Community Tool - No Official Support**: This is a community-developed troubleshooting tool with no warranties or support guarantees. Use at your own risk.
+
 PowerShell module for managing and troubleshooting Azure DevOps Service Connections via REST API. Provides comprehensive tools for listing, deleting, and diagnosing service connection issues with built-in logging and execution history tracking.
 
 ## Features
@@ -171,13 +173,18 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 ## Support
 
+**This is a community-supported tool with no official support guarantees.**
+
 For issues or questions:
 1. Check [troubleshooting guide](AdoServiceConnectionTools/README.md#troubleshooting)
 2. Review log files in `logs/` directory
-3. Open an issue with:
+3. Open an issue on GitHub (community support only)
+4. Include diagnostic data:
    - Log files (`.log` and `.json`)
    - Command executed
    - Expected vs actual behavior
+
+Use at your own risk. No warranties or support commitments are provided.
 
 ---
 
