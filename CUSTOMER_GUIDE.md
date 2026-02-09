@@ -5,8 +5,10 @@ This guide walks you through using the PowerShell module to delete an Azure DevO
 ## Prerequisites
 
 ### 1. Install PowerShell
-- **Windows**: PowerShell 5.1+ (built-in)
+- **Windows**: PowerShell 5.1+ (built-in) ✅ **Fully compatible**
 - **Linux/macOS**: [Install PowerShell 7+](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
+
+**Note**: This tool works on both Windows PowerShell 5.1 and PowerShell 7+ across all platforms.
 
 ### 2. Download the Tool
 ```powershell
@@ -161,6 +163,17 @@ This is often an Azure DevOps propagation delay. Please verify:
 ---
 
 ## Troubleshooting
+
+### Error: "A parameter cannot be found that matches parameter name 'ResponseHeadersVariable'"
+**Problem**: Using Windows PowerShell 5.1 with an older version of the module  
+**Solution**: 
+1. Re-download/update the module to the latest version
+2. Re-import: `Import-Module .\AdoServiceConnectionTools -Force`
+3. Verify your PowerShell version: `$PSVersionTable.PSVersion`
+   - Version 5.x = Windows PowerShell (now supported)
+   - Version 7.x = PowerShell Core (supported)
+
+**Note**: This error was fixed in version 1.0.1 - the module now works on both PowerShell versions.
 
 ### Error: "401 Unauthorized"
 **Problem**: PAT is invalid or expired  

@@ -1,6 +1,6 @@
 @{
     RootModule = 'AdoServiceConnectionTools.psm1'
-    ModuleVersion = '1.0.0'
+    ModuleVersion = '1.0.1'
     GUID = 'a7b8c9d0-e1f2-4a3b-9c8d-7e6f5a4b3c2d'
     Author = 'Azure DevOps Service Connection Troubleshooter Team'
     CompanyName = 'Unknown'

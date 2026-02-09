@@ -68,11 +68,22 @@ function Invoke-AdoRestMethod {
             }
         }
         
-        # Execute REST call
-        $response = Invoke-RestMethod @splat -ResponseHeadersVariable responseHeaders -StatusCodeVariable statusCode
+        # Execute REST call with PowerShell version compatibility
+        # PowerShell 7+ supports -ResponseHeadersVariable and -StatusCodeVariable
+        # PowerShell 5.1 does not, so we use different approaches
+        if ($PSVersionTable.PSVersion.Major -ge 6) {
+            # PowerShell 7+ - use modern parameters
+            $response = Invoke-RestMethod @splat -ResponseHeadersVariable responseHeaders -StatusCodeVariable statusCode
+            $result.StatusCode = $statusCode
+        }
+        else {
+            # PowerShell 5.1 - response variables not supported
+            # Success means 2xx status code (Invoke-RestMethod throws on errors)
+            $response = Invoke-RestMethod @splat
+            $result.StatusCode = 200  # Assume 200 OK on success for PS 5.1
+        }
         
         $result.Success = $true
-        $result.StatusCode = $statusCode
         $result.StatusDescription = "Success"
         $result.Data = $response
         $result.RawResponse = $response
