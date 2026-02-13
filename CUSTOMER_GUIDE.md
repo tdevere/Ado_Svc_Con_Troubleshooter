@@ -96,17 +96,49 @@ Service Connection Details:
   Owner: Library
 ```
 
+### If More Than One Service Connection Is Returned
+
+When your project has multiple service connections, isolate the exact one before deleting.
+
+1. Display all returned connections in a table:
+
+```powershell
+$result.Data | Select-Object name, type, id, url | Format-Table -AutoSize
+```
+
+2. Set the exact service connection name you want to remove:
+
+```powershell
+$targetName = "EXACT_SERVICE_CONNECTION_NAME"
+```
+
+3. Find only exact-name matches:
+
+```powershell
+$target = @($result.Data | Where-Object { $_.name -eq $targetName })
+$target | Select-Object name, type, id, url | Format-Table -AutoSize
+```
+
+4. Confirm exactly one match:
+    - If count is `1`, use that ID for deletion
+    - If count is `0`, re-check spelling/case and run Step 5 again
+    - If count is greater than `1`, use ID from the table to choose the correct one
+
+```powershell
+$target.Count
+```
+
 ### Step 6: Delete the Service Connection
 
 ```powershell
-Remove-AdoServiceConnection -Organization "YOUR_ORG" -Project "YOUR_PROJECT" -PAT $pat -EndpointId $result.Data.id
+Remove-AdoServiceConnection -Organization "YOUR_ORG" -Project "YOUR_PROJECT" -PAT $pat -EndpointId $target[0].id
 ```
 
 Use the **same organization and project** from Step 5.
 
 **Example:**
 ```powershell
-Remove-AdoServiceConnection -Organization "MCAPDevOpsOrg" -Project "PermaSamples" -PAT $pat -EndpointId $result.Data.id
+Remove-AdoServiceConnection -Organization "MCAPDevOpsOrg" -Project "PermaSamples" -PAT $pat -EndpointId $target[0].id
 ```
 
 **What happens:**
@@ -235,8 +267,12 @@ Import-Module .\AdoServiceConnectionTools -Force
 # Find service connection
 $result = Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -PAT $pat
 
+# If multiple are returned, isolate one by exact name
+$targetName = "my-service-connection"
+$target = @($result.Data | Where-Object { $_.name -eq $targetName })
+
 # Delete it
-Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -PAT $pat -EndpointId $result.Data.id
+Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -PAT $pat -EndpointId $target[0].id
 
 # Verify in portal
 Start-Process "https://dev.azure.com/myorg/myproject/_settings/adminservices"
