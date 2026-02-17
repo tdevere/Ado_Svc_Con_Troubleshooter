@@ -58,7 +58,7 @@ Replace `your-pat-token-here` with the PAT you created in the prerequisites.
 
 **Example:**
 ```powershell
-$pat = "abc123xyz789yourpattoken"
+$pat = "your-pat-token"
 ```
 
 ### Step 4: Import the Module
@@ -69,6 +69,35 @@ Import-Module .\AdoServiceConnectionTools -Force
 
 You may see a warning about unapproved verbs - **this is normal, ignore it**.
 
+### Step 4.1: Directly Test New Features (No `Test-Module.ps1` Edits)
+
+If you added custom values to `Test-Module.ps1`, do **not** save or commit that file. Use one-off commands in your current PowerShell session instead:
+
+```powershell
+# Session-only test values (replace with your real values)
+$org = "YOUR_ORG"
+$project = "YOUR_PROJECT"
+```
+
+Test commands for the new query options:
+
+```powershell
+# A) List all service connections
+$all = Get-AdoServiceConnection -Organization $org -Project $project -PAT $pat
+
+# B) Include failed connections (important when troubleshooting broken/corrupted entries)
+$withFailed = Get-AdoServiceConnection -Organization $org -Project $project -IncludeFailed -PAT $pat
+
+# C) Query by specific friendly name(s)
+$byName = Get-AdoServiceConnection -Organization $org -Project $project -EndpointNames "EXACT_NAME" -PAT $pat
+```
+
+If you changed `Test-Module.ps1` locally for quick testing and want to discard those edits:
+
+```powershell
+git restore Test-Module.ps1
+```
+
 ### Step 5: Find Your Service Connection
 
 First, list all service connections to find the one you want to delete:
@@ -78,12 +107,12 @@ $result = Get-AdoServiceConnection -Organization "YOUR_ORG" -Project "YOUR_PROJE
 ```
 
 **Replace:**
-- `YOUR_ORG` - Your Azure DevOps organization name (e.g., "MCAPDevOpsOrg")
-- `YOUR_PROJECT` - Your project name (e.g., "PermaSamples")
+- `YOUR_ORG` - Your Azure DevOps organization name (e.g., "contoso-org")
+- `YOUR_PROJECT` - Your project name (e.g., "sample-project")
 
 **Example:**
 ```powershell
-$result = Get-AdoServiceConnection -Organization "MCAPDevOpsOrg" -Project "PermaSamples" -PAT $pat
+$result = Get-AdoServiceConnection -Organization "contoso-org" -Project "sample-project" -PAT $pat
 ```
 
 **Output will show:**
@@ -94,6 +123,12 @@ Service Connection Details:
   ID: a8af53d8-8ae2-493d-8b4f-43775f96f6f8
   URL: https://management.azure.com/
   Owner: Library
+```
+
+**Tip**: If a service connection is visible in the Azure DevOps UI but doesn't appear in the list, use the `-IncludeFailed` parameter to include failed connections:
+
+```powershell
+$result = Get-AdoServiceConnection -Organization "contoso-org" -Project "sample-project" -IncludeFailed -PAT $pat
 ```
 
 ### If More Than One Service Connection Is Returned
@@ -128,6 +163,16 @@ $target | Select-Object name, type, id, url | Format-Table -AutoSize
 $target.Count
 ```
 
+If duplicates still exist after exact-name filtering, select by ID explicitly:
+
+```powershell
+$targetId = "PUT_THE_EXACT_ENDPOINT_ID_HERE"
+$target = @($result.Data | Where-Object { $_.id -eq $targetId })
+$target | Select-Object name, type, id, url | Format-Table -AutoSize
+```
+
+Expected result: `$target.Count` should be `1` before deletion.
+
 ### Step 6: Delete the Service Connection
 
 ```powershell
@@ -138,7 +183,13 @@ Use the **same organization and project** from Step 5.
 
 **Example:**
 ```powershell
-Remove-AdoServiceConnection -Organization "MCAPDevOpsOrg" -Project "PermaSamples" -PAT $pat -EndpointId $target[0].id
+Remove-AdoServiceConnection -Organization "contoso-org" -Project "sample-project" -PAT $pat -EndpointId $target[0].id
+```
+
+**Advanced option**: If you need to delete a failed service connection instance that's causing issues, use the `-Deep` parameter to also delete the associated service principal:
+
+```powershell
+Remove-AdoServiceConnection -Organization "contoso-org" -Project "sample-project" -PAT $pat -EndpointId $target[0].id -Deep
 ```
 
 **What happens:**

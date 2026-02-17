@@ -62,6 +62,11 @@ Get-AdoServiceConnectionHistory -Organization "myorg" -Project "myproject" -Endp
 
 ## Advanced Usage
 
+### List Including Failed Connections
+```powershell
+Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -IncludeFailed -PAT "token"
+```
+
 ### Delete Without Execution History Check
 ```powershell
 Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "token" -SkipHistory

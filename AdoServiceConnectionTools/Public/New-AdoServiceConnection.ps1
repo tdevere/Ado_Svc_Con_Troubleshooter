@@ -29,17 +29,21 @@ function New-AdoServiceConnection {
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Organization,
         
         [Parameter(Mandatory = $true)]
         [object]$EndpointDefinition,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$PAT,
         
         [switch]$NoLog
     )
+
+    $resolvedDefaults = Resolve-AdoDefaultContext -Organization $Organization -PAT $PAT -Required @('Organization', 'PAT')
+    $Organization = $resolvedDefaults.Organization
+    $PAT = $resolvedDefaults.PAT
     
     # Implementation will use POST to /{org}/_apis/serviceendpoint/endpoints
     Write-Host "New-AdoServiceConnection - Implementation pending" -ForegroundColor Yellow

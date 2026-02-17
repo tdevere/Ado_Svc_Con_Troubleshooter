@@ -31,7 +31,7 @@ function Get-AdoServiceConnectionType {
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Organization,
         
         [Parameter(Mandatory = $false)]
@@ -40,11 +40,15 @@ function Get-AdoServiceConnectionType {
         [Parameter(Mandatory = $false)]
         [string]$Scheme,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$PAT,
         
         [switch]$NoLog
     )
+
+    $resolvedDefaults = Resolve-AdoDefaultContext -Organization $Organization -PAT $PAT -Required @('Organization', 'PAT')
+    $Organization = $resolvedDefaults.Organization
+    $PAT = $resolvedDefaults.PAT
     
     # Implementation follows Get-AdoServiceConnection pattern
     Write-Host "Get-AdoServiceConnectionType - Implementation pending" -ForegroundColor Yellow
