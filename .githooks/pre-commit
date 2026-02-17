@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+set -eu
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+SCRIPT="$REPO_ROOT/.githooks/pre-commit-secrets.ps1"
+
+if [ ! -f "$SCRIPT" ]; then
+  echo "[pre-commit] Secret scan script not found: $SCRIPT"
+  exit 1
+fi
+
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -File "$SCRIPT"
+  exit $?
+fi
+
+if command -v powershell >/dev/null 2>&1; then
+  powershell -NoProfile -ExecutionPolicy Bypass -File "$SCRIPT"
+  exit $?
+fi
+
+echo "[pre-commit] Skipping secret scan: PowerShell not found in PATH."
+exit 0

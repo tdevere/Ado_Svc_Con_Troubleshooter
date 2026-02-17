@@ -32,20 +32,25 @@ function Set-AdoServiceConnection {
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Organization,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$EndpointId,
         
         [Parameter(Mandatory = $true)]
         [object]$EndpointDefinition,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$PAT,
         
         [switch]$NoLog
     )
+
+    $resolvedDefaults = Resolve-AdoDefaultContext -Organization $Organization -PAT $PAT -EndpointId $EndpointId -Required @('Organization', 'PAT', 'EndpointId')
+    $Organization = $resolvedDefaults.Organization
+    $PAT = $resolvedDefaults.PAT
+    $EndpointId = $resolvedDefaults.EndpointId
     
     # Implementation will use PUT to /{org}/_apis/serviceendpoint/endpoints/{id}
     Write-Host "Set-AdoServiceConnection - Implementation pending" -ForegroundColor Yellow

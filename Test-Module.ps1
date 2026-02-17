@@ -22,10 +22,10 @@
 # CONFIGURATION - UPDATE THESE VALUES
 # ============================================================================
 
-$Organization = "YOUR_ORG"          # e.g., "myorg" from https://dev.azure.com/myorg
-$Project = "YOUR_PROJECT"            # e.g., "myproject"
-$PAT = "YOUR_PAT_TOKEN"              # Create at https://dev.azure.com/_usersSettings/tokens
-$TestEndpointId = "YOUR_ENDPOINT_GUID"  # Optional - for testing specific endpoint
+$Organization = if ($env:ORGANIZATION) { $env:ORGANIZATION } else { "YOUR_ORG" }          # e.g., "myorg" from https://dev.azure.com/myorg
+$Project = if ($env:PROJECT) { $env:PROJECT } else { "YOUR_PROJECT" }                      # e.g., "myproject"
+$PAT = if ($env:PAT) { $env:PAT } else { "YOUR_PAT_TOKEN" }                                # Create at https://dev.azure.com/_usersSettings/tokens
+$TestEndpointId = if ($env:TEST_ENDPOINT_ID) { $env:TEST_ENDPOINT_ID } else { "YOUR_ENDPOINT_GUID" }  # Optional - for testing specific endpoint
 
 # ============================================================================
 # MODULE IMPORT

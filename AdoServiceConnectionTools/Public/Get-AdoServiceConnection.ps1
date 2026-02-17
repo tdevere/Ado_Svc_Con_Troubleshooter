@@ -49,10 +49,10 @@ function Get-AdoServiceConnection {
     [CmdletBinding(DefaultParameterSetName = 'List')]
     [OutputType([PSCustomObject])]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Organization,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Project,
         
         [Parameter(Mandatory = $false, ParameterSetName = 'Single')]
@@ -68,11 +68,17 @@ function Get-AdoServiceConnection {
         [Parameter(Mandatory = $false, ParameterSetName = 'ByName')]
         [switch]$IncludeFailed,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$PAT,
         
         [switch]$NoLog
     )
+
+    $resolvedDefaults = Resolve-AdoDefaultContext -Organization $Organization -Project $Project -PAT $PAT -EndpointId $EndpointId -Required @('Organization', 'Project', 'PAT')
+    $Organization = $resolvedDefaults.Organization
+    $Project = $resolvedDefaults.Project
+    $PAT = $resolvedDefaults.PAT
+    $EndpointId = if ($EndpointId) { $EndpointId } else { $resolvedDefaults.EndpointId }
     
     $LogData = @{
         Organization = $Organization

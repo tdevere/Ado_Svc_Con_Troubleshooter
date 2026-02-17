@@ -34,10 +34,10 @@ function Update-AdoServiceConnectionAuth {
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Organization,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Project,
         
         [Parameter(Mandatory = $true)]
@@ -46,11 +46,16 @@ function Update-AdoServiceConnectionAuth {
         [Parameter(Mandatory = $true)]
         [hashtable]$AuthParameters,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$PAT,
         
         [switch]$NoLog
     )
+
+    $resolvedDefaults = Resolve-AdoDefaultContext -Organization $Organization -Project $Project -PAT $PAT -Required @('Organization', 'Project', 'PAT')
+    $Organization = $resolvedDefaults.Organization
+    $Project = $resolvedDefaults.Project
+    $PAT = $resolvedDefaults.PAT
     
     # Implementation will use POST to /{org}/{project}/_apis/serviceendpoint/endpoints?endpointIds={ids}
     Write-Host "Update-AdoServiceConnectionAuth - Implementation pending" -ForegroundColor Yellow

@@ -7,6 +7,8 @@ logs/
 *.pat
 *token*
 secrets/
+.env
+.env.*
 
 # PowerShell Gallery Publishing
 *.nupkg

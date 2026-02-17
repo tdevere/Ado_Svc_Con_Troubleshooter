@@ -48,19 +48,19 @@ function Remove-AdoServiceConnection {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     [OutputType([PSCustomObject])]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Organization,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$Project,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$EndpointId,
         
         [Parameter(Mandatory = $false)]
         [string[]]$ProjectIds,
         
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$PAT,
         
         [switch]$Deep,
@@ -69,6 +69,12 @@ function Remove-AdoServiceConnection {
         
         [switch]$NoLog
     )
+
+    $resolvedDefaults = Resolve-AdoDefaultContext -Organization $Organization -Project $Project -PAT $PAT -EndpointId $EndpointId -Required @('Organization', 'Project', 'PAT', 'EndpointId')
+    $Organization = $resolvedDefaults.Organization
+    $Project = $resolvedDefaults.Project
+    $PAT = $resolvedDefaults.PAT
+    $EndpointId = $resolvedDefaults.EndpointId
     
     $LogData = @{
         Organization = $Organization

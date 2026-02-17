@@ -167,6 +167,16 @@ To contribute:
 4. Test on both Windows and Linux
 5. Submit a pull request
 
+### Secret Safety (Recommended)
+
+Enable the repo's pre-commit secret scanner once per clone:
+
+```powershell
+git config core.hooksPath .githooks
+```
+
+This blocks commits that appear to include PAT/token values in staged changes.
+
 ## API Reference
 
 Uses Azure DevOps REST API v7.1 (stable):
