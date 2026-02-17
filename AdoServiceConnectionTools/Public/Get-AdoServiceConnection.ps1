@@ -22,6 +22,9 @@ function Get-AdoServiceConnection {
     .PARAMETER Type
         Filter by endpoint type (e.g., "AzureRM", "GitHub", "Generic")
     
+    .PARAMETER IncludeFailed
+        Include failed service connections in the results (only for list operations)
+    
     .PARAMETER PAT
         Personal Access Token with 'vso.serviceendpoint' scope
     
@@ -39,6 +42,9 @@ function Get-AdoServiceConnection {
         
     .EXAMPLE
         Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -Type "AzureRM" -PAT "token"
+        
+    .EXAMPLE
+        Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -IncludeFailed -PAT "token"
     #>
     [CmdletBinding(DefaultParameterSetName = 'List')]
     [OutputType([PSCustomObject])]
@@ -58,6 +64,10 @@ function Get-AdoServiceConnection {
         [Parameter(Mandatory = $false, ParameterSetName = 'List')]
         [string]$Type,
         
+        [Parameter(Mandatory = $false, ParameterSetName = 'List')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ByName')]
+        [switch]$IncludeFailed,
+        
         [Parameter(Mandatory = $true)]
         [string]$PAT,
         
@@ -70,6 +80,7 @@ function Get-AdoServiceConnection {
         EndpointId = $EndpointId
         EndpointNames = $EndpointNames
         Type = $Type
+        IncludeFailed = $IncludeFailed.IsPresent
         PAT = $PAT
         HttpMethod = 'GET'
     }
@@ -90,6 +101,10 @@ function Get-AdoServiceConnection {
         elseif ($PSCmdlet.ParameterSetName -eq 'ByName') {
             $namesParam = $EndpointNames -join ','
             $url = "https://dev.azure.com/$Organization/$Project/_apis/serviceendpoint/endpoints?endpointNames=$namesParam&api-version=7.1"
+            
+            if ($IncludeFailed) {
+                $url += "&includeFailed=true"
+            }
         }
         else {
             # List all
@@ -97,6 +112,10 @@ function Get-AdoServiceConnection {
             
             if ($Type) {
                 $url += "&type=$Type"
+            }
+            
+            if ($IncludeFailed) {
+                $url += "&includeFailed=true"
             }
         }
         

@@ -96,6 +96,12 @@ Service Connection Details:
   Owner: Library
 ```
 
+**Tip**: If a service connection is visible in the Azure DevOps UI but doesn't appear in the list, use the `-IncludeFailed` parameter to include failed connections:
+
+```powershell
+$result = Get-AdoServiceConnection -Organization "MCAPDevOpsOrg" -Project "PermaSamples" -IncludeFailed -PAT $pat
+```
+
 ### If More Than One Service Connection Is Returned
 
 When your project has multiple service connections, isolate the exact one before deleting.
@@ -139,6 +145,12 @@ Use the **same organization and project** from Step 5.
 **Example:**
 ```powershell
 Remove-AdoServiceConnection -Organization "MCAPDevOpsOrg" -Project "PermaSamples" -PAT $pat -EndpointId $target[0].id
+```
+
+**Advanced option**: If you need to delete a failed service connection instance that's causing issues, use the `-Deep` parameter to also delete the associated service principal:
+
+```powershell
+Remove-AdoServiceConnection -Organization "MCAPDevOpsOrg" -Project "PermaSamples" -PAT $pat -EndpointId $target[0].id -Deep
 ```
 
 **What happens:**

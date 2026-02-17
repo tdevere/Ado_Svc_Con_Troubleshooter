@@ -40,6 +40,9 @@ function Remove-AdoServiceConnection {
         Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "token"
         
     .EXAMPLE
+        Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "token" -Deep
+        
+    .EXAMPLE
         Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "token" -SkipHistory -NoLog
     #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]

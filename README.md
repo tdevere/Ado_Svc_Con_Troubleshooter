@@ -12,6 +12,7 @@ PowerShell module for managing and troubleshooting Azure DevOps Service Connecti
 
 - ✅ **Cross-platform**: Works on Windows PowerShell 5.1 and PowerShell 7+ (Linux/macOS)
 - ✅ **Complete API coverage**: All 11 Azure DevOps Service Endpoints REST API methods
+- ✅ **Advanced query options**: List failed connections with `-IncludeFailed`, deep delete with `-Deep`
 - ✅ **Dual-format logging**: Human-readable text and JSON logs enabled by default
 - ✅ **Execution history**: Automatic pipeline usage checks before deletion
 - ✅ **Self-testing workflow**: Pre/post operation validation with PASS/FAIL reporting
@@ -44,6 +45,9 @@ Import-Module .\AdoServiceConnectionTools
 # List all service connections
 Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -PAT "your-pat"
 
+# List all service connections including failed ones
+Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -IncludeFailed -PAT "your-pat"
+
 # Get single service connection
 Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "your-pat"
 
@@ -52,6 +56,9 @@ Get-AdoServiceConnectionHistory -Organization "myorg" -Project "myproject" -Endp
 
 # Delete service connection (with confirmation prompt)
 Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "your-pat"
+
+# Delete service connection and its associated service principal
+Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "your-pat" -Deep
 ```
 
 ## Documentation
