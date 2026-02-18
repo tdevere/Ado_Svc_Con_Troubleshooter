@@ -1,6 +1,6 @@
 @{
     RootModule = 'AdoServiceConnectionTools.psm1'
-    ModuleVersion = '1.0.1'
+    ModuleVersion = '1.1.0'
     GUID = 'a7b8c9d0-e1f2-4a3b-9c8d-7e6f5a4b3c2d'
     Author = 'Azure DevOps Service Connection Troubleshooter Team'
     CompanyName = 'Unknown'
@@ -11,6 +11,7 @@
     FunctionsToExport = @(
         'Get-AdoServiceConnection'
         'New-AdoServiceConnection'
+        'New-AdoTestServiceConnection'
         'Set-AdoServiceConnection'
         'Remove-AdoServiceConnection'
         'Share-AdoServiceConnection'

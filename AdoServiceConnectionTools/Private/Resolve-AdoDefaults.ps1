@@ -114,3 +114,94 @@ function Resolve-AdoDefaultContext {
 
     return [PSCustomObject]$resolved
 }
+
+function Get-AdoEnvPath {
+    <#
+    .SYNOPSIS
+        Locates the .env file used by AdoServiceConnectionTools, or returns $null if none found.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param()
+
+    $candidatePaths = @()
+
+    if ($env:ADO_SC_ENV_PATH) { $candidatePaths += $env:ADO_SC_ENV_PATH }
+
+    try {
+        $currentPath = (Get-Location).Path
+        if ($currentPath) { $candidatePaths += (Join-Path $currentPath ".env") }
+    } catch {}
+
+    if ($PSScriptRoot) {
+        $moduleRoot = Split-Path $PSScriptRoot -Parent
+        $repoRoot   = Split-Path $moduleRoot -Parent
+        $candidatePaths += (Join-Path $moduleRoot ".env")
+        $candidatePaths += (Join-Path $repoRoot   ".env")
+    }
+
+    return ($candidatePaths | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1)
+}
+
+function Set-AdoEnvValue {
+    <#
+    .SYNOPSIS
+        Writes or updates a single key=value pair in the .env file, then invalidates the cache.
+
+    .PARAMETER Key
+        The environment variable name (e.g. TEST_ENDPOINT_ID).
+
+    .PARAMETER Value
+        The value to write.
+
+    .PARAMETER EnvPath
+        Optional explicit path to the .env file. Auto-detected when omitted.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Key,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Value,
+
+        [Parameter(Mandatory = $false)]
+        [string]$EnvPath
+    )
+
+    if (-not $EnvPath) {
+        $EnvPath = Get-AdoEnvPath
+    }
+
+    if (-not $EnvPath) {
+        # No existing .env — create one next to the module root or in CWD
+        $EnvPath = if ($PSScriptRoot) {
+            Join-Path (Split-Path $PSScriptRoot -Parent) ".env"
+        } else {
+            Join-Path (Get-Location).Path ".env"
+        }
+    }
+
+    if (Test-Path $EnvPath) {
+        $lines = Get-Content $EnvPath -Encoding UTF8
+        $found = $false
+        $newLines = $lines | ForEach-Object {
+            if ($_ -match "^\s*$([regex]::Escape($Key))\s*=") {
+                "$Key=$Value"
+                $found = $true
+            } else {
+                $_
+            }
+        }
+        if (-not $found) { $newLines += "$Key=$Value" }
+        $newLines | Set-Content $EnvPath -Encoding UTF8
+    } else {
+        "$Key=$Value" | Set-Content $EnvPath -Encoding UTF8
+    }
+
+    # Invalidate the in-memory cache so next read picks up the new value
+    $script:AdoEnvDefaultsCache = $null
+
+    Write-Verbose "Set-AdoEnvValue: '$Key' written to '$EnvPath'"
+    return $EnvPath
+}
