@@ -39,3 +39,7 @@ TestResults/
 temp/
 tmp/
 *.tmp
+
+# Wizard transcripts and session files
+*-transcript.txt
+CUSTOMER_VALIDATION_ACTION_PLAN.md

@@ -1,208 +1,163 @@
 # Azure DevOps Service Connection Troubleshooter
 
-[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/tdevere/Ado_Svc_Con_Troubleshooter)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+A guided tool for removing broken or stuck Azure DevOps Service Connections.
+No coding experience required for the standard workflow.
 
-> **⚠️ Community Tool - No Official Support**: This is a community-developed troubleshooting tool with no warranties or support guarantees. Use at your own risk.
-
-PowerShell module for managing and troubleshooting Azure DevOps Service Connections via REST API. Provides comprehensive tools for listing, deleting, and diagnosing service connection issues with built-in logging and execution history tracking.
-
-## Features
-
-- ✅ **Cross-platform**: Works on Windows PowerShell 5.1 and PowerShell 7+ (Linux/macOS)
-- ✅ **Complete API coverage**: All 11 Azure DevOps Service Endpoints REST API methods
-- ✅ **Advanced query options**: List failed connections with `-IncludeFailed`, deep delete with `-Deep`
-- ✅ **Dual-format logging**: Human-readable text and JSON logs enabled by default
-- ✅ **Execution history**: Automatic pipeline usage checks before deletion
-- ✅ **Self-testing workflow**: Pre/post operation validation with PASS/FAIL reporting
-- ✅ **No Azure CLI dependency**: Pure REST API with PAT authentication
-
-## Quick Start
-
-### Installation
-
-```powershell
-# Clone the repository
-git clone https://github.com/tdevere/Ado_Svc_Con_Troubleshooter.git
-cd Ado_Svc_Con_Troubleshooter
-
-# Import the module
-Import-Module .\AdoServiceConnectionTools
-```
-
-### Prerequisites
-
-**Create a Personal Access Token (PAT)** with appropriate scopes:
-- **Read operations**: `vso.serviceendpoint`
-- **Manage operations**: `vso.serviceendpoint_manage`
-
-[Create PAT in Azure DevOps](https://dev.azure.com/_usersSettings/tokens)
-
-### Basic Usage
-
-```powershell
-# List all service connections
-Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -PAT "your-pat"
-
-# List all service connections including failed ones
-Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -IncludeFailed -PAT "your-pat"
-
-# Get single service connection
-Get-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "your-pat"
-
-# Check execution history before deletion
-Get-AdoServiceConnectionHistory -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "your-pat"
-
-# Delete service connection (with confirmation prompt)
-Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "your-pat"
-
-# Delete service connection and its associated service principal
-Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "your-pat" -Deep
-```
-
-## Documentation
-
-- **User Guide**: [AdoServiceConnectionTools/README.md](AdoServiceConnectionTools/README.md)
-- **Developer Guide**: [.github/copilot-instructions.md](.github/copilot-instructions.md)
-- **Project Status**: [PROJECT_STATUS.md](PROJECT_STATUS.md)
-- **Test Script**: [Test-Module.ps1](Test-Module.ps1)
-
-## Available Commands
-
-| Function | Status | Purpose |
-|----------|--------|---------|
-| `Get-AdoServiceConnection` | ✅ Implemented | List/retrieve endpoints with filtering |
-| `Remove-AdoServiceConnection` | ✅ Implemented | Delete with validation & history checks |
-| `Get-AdoServiceConnectionHistory` | ✅ Implemented | Query pipeline usage audit trail |
-| `New-AdoServiceConnection` | ⏳ Stub | Create new endpoint |
-| `Set-AdoServiceConnection` | ⏳ Stub | Update existing endpoint |
-| `Share-AdoServiceConnection` | ⏳ Stub | Share across projects |
-| `Update-AdoServiceConnectionAuth` | ⏳ Stub | Refresh OAuth tokens |
-| `Get-AdoServiceConnectionType` | ⏳ Stub | List available types |
-
-## Key Features
-
-### Logging (Enabled by Default)
-
-All operations generate dual-format logs:
-```
-logs/
-├── ado-sc-remove-20260206-143052.log   # Human-readable
-└── ado-sc-remove-20260206-143052.json  # Machine-parseable
-```
-
-Logs include:
-- Request/response details
-- Success/failure status
-- PAT redaction for security
-- Full error messages
-
-Disable with `-NoLog` flag.
-
-### Execution History Integration
-
-DELETE operations automatically check pipeline usage:
-```powershell
-Remove-AdoServiceConnection -Organization "myorg" -Project "myproject" -EndpointId "guid" -PAT "token"
-
-# Output shows:
-# Recent pipeline usage (last 5 executions):
-#   - BuildPipeline | Type: Build | Result: succeeded | Time: 2026-02-06 11:30
-```
-
-Skip with `-SkipHistory` flag.
-
-### Self-Testing Workflow
-
-Every operation validates state:
-1. Pre-operation GET (verify exists)
-2. Execute operation
-3. Post-operation GET (verify expected state)
-4. Report PASS/FAIL with log paths
-
-## Troubleshooting
-
-### Common Issues
-
-**401 Unauthorized**
-- Verify PAT is valid and not expired
-- Check scope includes `vso.serviceendpoint` or `vso.serviceendpoint_manage`
-
-**404 Not Found**
-- Verify Organization, Project, and EndpointId are correct
-- Use `Get-AdoServiceConnection` to list available endpoints
-
-**DELETE Succeeded But Endpoint Still Visible**
-- Azure DevOps propagation delay (30-60 seconds)
-- Verify in portal: `https://dev.azure.com/{org}/{project}/_settings/adminservices`
-- Check [troubleshooting guide](AdoServiceConnectionTools/README.md#troubleshooting)
-
-## Project Structure
-
-```
-Ado_Svc_Con_Troubleshooter/
-├── .github/
-│   └── copilot-instructions.md          # AI agent development guide
-├── AdoServiceConnectionTools/            # PowerShell Module
-│   ├── AdoServiceConnectionTools.psd1   # Module manifest
-│   ├── AdoServiceConnectionTools.psm1   # Module loader
-│   ├── README.md                        # Detailed documentation
-│   ├── Private/                         # Helper functions
-│   └── Public/                          # Exported functions
-├── OriginalPrompt.md                    # Original requirements
-├── PROJECT_STATUS.md                    # Implementation summary
-├── Test-Module.ps1                      # Validation script
-└── LICENSE                              # MIT License
-```
-
-## Contributing
-
-Contributions are welcome! The project follows established patterns documented in [.github/copilot-instructions.md](.github/copilot-instructions.md).
-
-To contribute:
-1. Fork the repository
-2. Create a feature branch
-3. Follow existing code patterns (see implemented functions)
-4. Test on both Windows and Linux
-5. Submit a pull request
-
-### Secret Safety (Recommended)
-
-Enable the repo's pre-commit secret scanner once per clone:
-
-```powershell
-git config core.hooksPath .githooks
-```
-
-This blocks commits that appear to include PAT/token values in staged changes.
-
-## API Reference
-
-Uses Azure DevOps REST API v7.1 (stable):
-- Base URL: `https://dev.azure.com/{organization}`
-- Authentication: Basic Auth with PAT
-- [Full API Documentation](https://learn.microsoft.com/en-us/rest/api/azure/devops/serviceendpoint/endpoints)
-
-## License
-
-MIT License - See [LICENSE](LICENSE) file for details.
-
-## Support
-
-**This is a community-supported tool with no official support guarantees.**
-
-For issues or questions:
-1. Check [troubleshooting guide](AdoServiceConnectionTools/README.md#troubleshooting)
-2. Review log files in `logs/` directory
-3. Open an issue on GitHub (community support only)
-4. Include diagnostic data:
-   - Log files (`.log` and `.json`)
-   - Command executed
-   - Expected vs actual behavior
-
-Use at your own risk. No warranties or support commitments are provided.
+> **Community Tool — No Official Support.** Use at your own risk.
 
 ---
 
-**Note**: This tool uses REST API directly and does not require Azure CLI installation.
+## Before You Start: Create a Personal Access Token (PAT)
+
+A PAT is a temporary password that lets the tool talk to Azure DevOps on your behalf.
+
+1. Open: **https://dev.azure.com/YOUR_ORG/_usersSettings/tokens**
+   (replace `YOUR_ORG` with your organization name)
+2. Click **+ New Token**
+3. Fill in:
+   - **Name:** `Service Connection Troubleshooter`
+   - **Expiration:** 7 days is enough
+   - **Scopes:** Choose **Custom defined**, then check **Service Connections — Read & manage**
+4. Click **Create**
+5. **Copy the token immediately** — you cannot view it again after closing the dialog
+
+---
+
+## Option A — Guided Wizard (Recommended)
+
+The wizard walks you through every step, shows selectable lists, and requires no typing of GUIDs.
+
+1. **Download or clone this repository** and extract it to a folder on your computer
+2. In that folder, **double-click `Start-CustomerValidation.bat`**
+3. Follow the on-screen prompts:
+   - Enter your **organization name** (the part after `dev.azure.com/`)
+   - Paste your **PAT** when asked
+   - Select your **project** from the numbered list
+   - Select the **service connection** to remove from the numbered list
+   - Confirm when prompted
+4. When it finishes, the wizard prints a list of log files to send to your support contact if needed
+
+**Tip:** The wizard offers to save your settings to a `.env` file at the end. Doing so means you can run it again later without re-entering anything.
+
+---
+
+## Option B — Manual PowerShell Commands
+
+Use this if you prefer to run commands yourself or need to script the workflow.
+
+### Step 1 — Open PowerShell and import the tool
+
+```powershell
+cd C:\path\to\Ado_Svc_Con_Troubleshooter
+Import-Module .\AdoServiceConnectionTools -Force
+```
+
+You may see a warning about "unapproved verbs" — this is harmless, ignore it.
+
+### Step 2 — Save your PAT to a variable
+
+```powershell
+$pat = "paste-your-pat-here"
+```
+
+### Step 3 — Find the service connection
+
+```powershell
+$result = Get-AdoServiceConnection -Organization "YOUR_ORG" -Project "YOUR_PROJECT" -PAT $pat -IncludeFailed
+```
+
+This returns all service connections, including ones that are broken or corrupted (`-IncludeFailed`).
+
+**If you get back more than one result**, narrow it down by name:
+
+```powershell
+$target = @($result.Data | Where-Object { $_.name -eq "EXACT_NAME_HERE" })
+$target | Select-Object name, type, id, isReady | Format-Table -AutoSize
+```
+
+Confirm `$target.Count` is `1` before continuing.
+
+### Step 4 — Delete the service connection
+
+```powershell
+Remove-AdoServiceConnection -Organization "YOUR_ORG" -Project "YOUR_PROJECT" -PAT $pat -EndpointId $target[0].id
+```
+
+Type **Y** and press Enter when asked to confirm.
+
+### Step 5 — Verify in the portal
+
+Open **https://dev.azure.com/YOUR_ORG/YOUR_PROJECT/_settings/adminservices** and confirm the connection is gone.
+
+> **Note:** It is normal for the connection to remain visible for up to 60 seconds after deletion. Refresh the page after a minute if needed.
+
+---
+
+## Stuck or Corrupted Connections: Force Delete
+
+If a normal delete returns an error or the connection keeps reappearing, add the `-Deep` flag.
+This removes the service connection **and** the underlying service principal in Azure AD.
+
+```powershell
+Remove-AdoServiceConnection -Organization "YOUR_ORG" -Project "YOUR_PROJECT" -PAT $pat -EndpointId "ENDPOINT_GUID" -Deep
+```
+
+Use `Get-AdoServiceConnection ... -IncludeFailed` first to confirm the endpoint ID,
+as corrupted connections may not appear without that flag.
+
+---
+
+## Saving Your Settings (.env File)
+
+If you run this tool more than once, create a `.env` file in the root folder to avoid
+re-entering your details every time:
+
+```
+ORGANIZATION=your-org-name
+PROJECT=your-project-name
+PAT=your-pat-token
+```
+
+Once this file exists, all commands work without any parameters:
+
+```powershell
+Get-AdoServiceConnection -IncludeFailed
+Remove-AdoServiceConnection -EndpointId "GUID" -Deep
+```
+
+> **Security:** The `.env` file is excluded from git and never committed.
+> Treat it like a password file — do not share it or store it in a shared drive.
+
+---
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `401 Unauthorized` | PAT is invalid, expired, or wrong scope | Create a new PAT with **Service Connections (Read & manage)** checked |
+| `403 Forbidden` | PAT lacks manage permission | Same as above — ensure the **manage** box is checked, not just read |
+| `404 Not Found` | Wrong org, project, or endpoint ID | Double-check each value; run `Get-AdoServiceConnection` to list available IDs |
+| Connection still visible after delete | Azure propagation delay | Wait 60 seconds and refresh the portal. This is expected behaviour. |
+| Connection still visible after 2+ minutes | Corrupted state | Re-run with `-Deep` flag; if still stuck, collect logs and contact support |
+
+---
+
+## Log Files
+
+Every operation writes logs to `AdoServiceConnectionTools\logs\`:
+
+```
+ado-sc-remove-20260218-143052.log    <- human-readable summary
+ado-sc-remove-20260218-143052.json   <- full machine-readable detail
+```
+
+PAT values are always redacted in logs (only first and last 4 characters are shown).
+
+If you need to escalate an issue, send the `.log` and `.json` files for the relevant
+operation along with a screenshot from the Azure DevOps portal.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE). Community-supported; no warranties or support commitments.
