@@ -94,7 +94,7 @@ function New-AdoServiceConnection {
             $hint = switch ($postResult.StatusCode) {
                 401 { "Check PAT is valid and has 'vso.serviceendpoint_manage' scope." }
                 403 { "PAT lacks 'Manage' permission on service connections." }
-                400 { "EndpointDefinition is invalid – verify all required fields and that project GUID is correct." }
+                400 { "EndpointDefinition is invalid - verify all required fields and that project GUID is correct." }
                 default { $postResult.ErrorMessage }
             }
 

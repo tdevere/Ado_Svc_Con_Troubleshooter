@@ -117,7 +117,7 @@ function New-AdoTestServiceConnection {
     # ── Step 2: Build Generic endpoint definition ──────────────────────────────
     $definition = @{
         name        = $Name
-        description = "Automated test endpoint – created by New-AdoTestServiceConnection. Safe to delete."
+        description = "Automated test endpoint - created by New-AdoTestServiceConnection. Safe to delete."
         type        = "generic"
         url         = "https://example-test-only.invalid"
         isShared    = $false
@@ -136,7 +136,7 @@ function New-AdoTestServiceConnection {
                     name = $Project
                 }
                 name        = $Name
-                description = "Automated test endpoint – created by New-AdoTestServiceConnection. Safe to delete."
+                description = "Automated test endpoint - created by New-AdoTestServiceConnection. Safe to delete."
             }
         )
     }
