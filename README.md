@@ -1,9 +1,11 @@
 # Azure DevOps Service Connection Troubleshooter
 
-A guided tool for removing broken or stuck Azure DevOps Service Connections.
+A guided tool for diagnosing, repairing, and removing broken or stuck Azure DevOps Service Connections.
 No coding experience required for the standard workflow.
 
 > **Community Tool — No Official Support.** Use at your own risk.
+
+**Recommended workflow:** diagnose with `Test-AdoServiceConnection` → attempt repair with `Update-AdoServiceConnectionAuth` → delete with `Remove-AdoServiceConnection` as a last resort.
 
 ---
 
@@ -131,6 +133,14 @@ The command runs six checks and prints a PASS / WARN / FAIL result for each:
 | Scheme Recognised | Is the auth scheme a known type? |
 | Recent Activity | Has the connection been used in the last 90 days? |
 
+> **WARN vs FAIL:** `Healthy = $true` when there are zero FAILs, even if WARNs are present.
+> Example: a connection last used 92 days ago gets a WARN on Recent Activity but is still considered healthy.
+> Only FAILs (e.g. `isReady = false`, missing credentials) indicate a broken connection.
+
+Useful flags:
+- `-SkipHistory` — omit the Recent Activity check for freshly-created connections or connection types that don't record pipeline history
+- `-NoLog` — suppress log file output
+
 The command returns a `Healthy` boolean you can use in scripts:
 
 ```powershell
@@ -146,12 +156,16 @@ if (-not $health.Healthy) {
 ## Repairing Credentials Without Deleting
 
 If the health check shows `isReady = false` because a secret rotated or a token expired,
-you can update the credentials in-place without deleting and re-creating the connection:
+you can update the credentials in-place without deleting and re-creating the connection.
 
-**OAuth token refresh** (GitHub OAuth, Azure connections with auto service principal):
+> **Note:** If `Authorization Present` also fails (no auth object at all), the connection is too
+> corrupted to repair. Skip straight to `Remove-AdoServiceConnection`.
+
+**OAuth token refresh** (GitHub OAuth, Azure connections with Workload Identity Federation or auto service principal — no new credentials needed):
 
 ```powershell
 Update-AdoServiceConnectionAuth -EndpointId "GUID"
+# -OAuthRefresh is the default mode; the switch is optional
 ```
 
 **Rotate a service principal secret** (Azure Resource Manager — service principal):
