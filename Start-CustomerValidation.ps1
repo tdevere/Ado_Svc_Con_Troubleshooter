@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 $ErrorActionPreference = 'Continue'
 $Host.UI.RawUI.WindowTitle = "Azure DevOps Service Connection Validator"
 

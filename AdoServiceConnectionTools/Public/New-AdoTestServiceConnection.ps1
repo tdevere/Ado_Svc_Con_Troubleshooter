@@ -1,4 +1,4 @@
-function New-AdoTestServiceConnection {
+﻿function New-AdoTestServiceConnection {
     <#
     .SYNOPSIS
         Creates a throwaway Generic service connection for deletion testing.

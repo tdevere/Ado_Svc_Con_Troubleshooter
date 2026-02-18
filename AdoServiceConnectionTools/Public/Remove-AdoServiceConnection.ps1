@@ -1,4 +1,4 @@
-function Remove-AdoServiceConnection {
+﻿function Remove-AdoServiceConnection {
     <#
     .SYNOPSIS
         Deletes an Azure DevOps Service Connection.

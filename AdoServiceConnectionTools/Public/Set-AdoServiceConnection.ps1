@@ -1,4 +1,4 @@
-function Set-AdoServiceConnection {
+﻿function Set-AdoServiceConnection {
     <#
     .SYNOPSIS
         Updates an existing Azure DevOps Service Connection.

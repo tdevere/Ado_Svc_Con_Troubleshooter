@@ -1,4 +1,4 @@
-function Invoke-AdoRestMethod {
+﻿function Invoke-AdoRestMethod {
     <#
     .SYNOPSIS
         Wrapper for Invoke-RestMethod with ADO-specific error handling.

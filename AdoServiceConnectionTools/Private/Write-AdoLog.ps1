@@ -1,4 +1,4 @@
-function Write-AdoLog {
+﻿function Write-AdoLog {
     <#
     .SYNOPSIS
         Writes dual-format logs (human-readable and JSON) for ADO operations.

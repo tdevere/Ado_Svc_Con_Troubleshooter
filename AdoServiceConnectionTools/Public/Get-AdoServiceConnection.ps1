@@ -1,4 +1,4 @@
-function Get-AdoServiceConnection {
+﻿function Get-AdoServiceConnection {
     <#
     .SYNOPSIS
         Retrieves Azure DevOps Service Connection(s).

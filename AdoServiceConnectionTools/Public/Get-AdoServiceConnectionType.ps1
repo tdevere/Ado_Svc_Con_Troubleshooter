@@ -1,4 +1,4 @@
-function Get-AdoServiceConnectionType {
+﻿function Get-AdoServiceConnectionType {
     <#
     .SYNOPSIS
         Lists available Azure DevOps Service Connection types.

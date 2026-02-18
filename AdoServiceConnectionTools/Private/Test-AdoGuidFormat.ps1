@@ -1,4 +1,4 @@
-function Test-AdoGuidFormat {
+﻿function Test-AdoGuidFormat {
     <#
     .SYNOPSIS
         Validates that a string is a properly formatted GUID.

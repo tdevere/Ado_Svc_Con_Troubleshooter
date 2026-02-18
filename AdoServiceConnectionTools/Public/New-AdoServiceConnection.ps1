@@ -1,4 +1,4 @@
-function New-AdoServiceConnection {
+﻿function New-AdoServiceConnection {
     <#
     .SYNOPSIS
         Creates a new Azure DevOps Service Connection.

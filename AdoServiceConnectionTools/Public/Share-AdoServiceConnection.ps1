@@ -1,4 +1,4 @@
-function Share-AdoServiceConnection {
+﻿function Share-AdoServiceConnection {
     <#
     .SYNOPSIS
         Shares an Azure DevOps Service Connection across projects.

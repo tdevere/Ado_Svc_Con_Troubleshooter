@@ -1,4 +1,4 @@
-function Get-AdoServiceConnectionHistory {
+﻿function Get-AdoServiceConnectionHistory {
     <#
     .SYNOPSIS
         Retrieves execution history for Azure DevOps Service Connections.

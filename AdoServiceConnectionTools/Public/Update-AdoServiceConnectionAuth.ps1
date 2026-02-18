@@ -1,4 +1,4 @@
-function Update-AdoServiceConnectionAuth {
+﻿function Update-AdoServiceConnectionAuth {
     <#
     .SYNOPSIS
         Refreshes authentication tokens for Azure DevOps Service Connection.

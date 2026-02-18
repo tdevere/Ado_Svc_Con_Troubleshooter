@@ -1,4 +1,4 @@
-function New-AdoAuthHeader {
+﻿function New-AdoAuthHeader {
     <#
     .SYNOPSIS
         Creates Azure DevOps REST API authentication header from PAT.

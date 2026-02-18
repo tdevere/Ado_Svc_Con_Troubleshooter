@@ -1,4 +1,4 @@
-function Get-AdoEnvDefaults {
+﻿function Get-AdoEnvDefaults {
     [CmdletBinding()]
     [OutputType([hashtable])]
     param()
