@@ -107,6 +107,73 @@ as corrupted connections may not appear without that flag.
 
 ---
 
+## Checking Connection Health
+
+Before deleting a broken connection, run a health check to understand what is wrong
+and whether it can be repaired instead:
+
+```powershell
+# Using .env defaults
+Test-AdoServiceConnection
+
+# Explicit parameters
+Test-AdoServiceConnection -Organization "YOUR_ORG" -Project "YOUR_PROJECT" -EndpointId "GUID" -PAT $pat
+```
+
+The command runs six checks and prints a PASS / WARN / FAIL result for each:
+
+| Check | What it tests |
+|-------|---------------|
+| Endpoint Exists | Can the endpoint be retrieved at all? |
+| Ready State | Is `isReady = true`? (fails after a bad credential change) |
+| Not Disabled | Is the connection enabled in the project? |
+| Authorization Present | Does the connection have stored credentials? |
+| Scheme Recognised | Is the auth scheme a known type? |
+| Recent Activity | Has the connection been used in the last 90 days? |
+
+The command returns a `Healthy` boolean you can use in scripts:
+
+```powershell
+$health = Test-AdoServiceConnection -EndpointId "GUID"
+if (-not $health.Healthy) {
+    # examine individual checks
+    $health.Checks | Format-Table -AutoSize
+}
+```
+
+---
+
+## Repairing Credentials Without Deleting
+
+If the health check shows `isReady = false` because a secret rotated or a token expired,
+you can update the credentials in-place without deleting and re-creating the connection:
+
+**OAuth token refresh** (GitHub OAuth, Azure connections with auto service principal):
+
+```powershell
+Update-AdoServiceConnectionAuth -EndpointId "GUID"
+```
+
+**Rotate a service principal secret** (Azure Resource Manager — service principal):
+
+```powershell
+Update-AdoServiceConnectionAuth -EndpointId "GUID" -NewCredentials @{ serviceprincipalkey = "NEW-SECRET" }
+```
+
+**Update a GitHub PAT-based connection:**
+
+```powershell
+Update-AdoServiceConnectionAuth -EndpointId "GUID" -NewCredentials @{ accessToken = "ghp_NewToken" }
+```
+
+After running, verify with:
+
+```powershell
+Test-AdoServiceConnection -EndpointId "GUID"
+```
+
+---
+
 ## Saving Your Settings (.env File)
 
 If you run this tool more than once, create a `.env` file in the root folder to avoid
@@ -134,6 +201,7 @@ Remove-AdoServiceConnection -EndpointId "GUID" -Deep
 
 | Error | Cause | Fix |
 |-------|-------|-----|
+| `isReady = false` in health check | Credentials expired or rotated | Run `Update-AdoServiceConnectionAuth -NewCredentials @{...}` to update in-place |
 | `401 Unauthorized` | PAT is invalid, expired, or wrong scope | Create a new PAT with **Service Connections (Read & manage)** checked |
 | `403 Forbidden` | PAT lacks manage permission | Same as above — ensure the **manage** box is checked, not just read |
 | `404 Not Found` | Wrong org, project, or endpoint ID | Double-check each value; run `Get-AdoServiceConnection` to list available IDs |
