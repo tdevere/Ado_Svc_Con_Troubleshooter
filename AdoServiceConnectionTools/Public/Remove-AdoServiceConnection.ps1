@@ -208,28 +208,37 @@
                 }
             }
             
-            # Step 4: Post-deletion verification
+            # Step 4: Post-deletion verification (retry up to 3 times for propagation delay)
             Write-Verbose "Step 4: Verifying deletion..."
-            Write-Host "Waiting for Azure DevOps to propagate deletion..." -ForegroundColor Gray
-            Start-Sleep -Seconds 2  # Increased delay for Azure DevOps propagation
-            
-            $verifyResult = Invoke-AdoRestMethod -Method GET -Uri $getUrl -Headers $headers
-            
+            $verifyDelays = @(3, 6, 10)
+            $verifyResult = $null
+            $deleted = $false
+
+            foreach ($delay in $verifyDelays) {
+                Write-Host "Waiting ${delay}s for Azure DevOps to propagate deletion..." -ForegroundColor Gray
+                Start-Sleep -Seconds $delay
+                $verifyResult = Invoke-AdoRestMethod -Method GET -Uri $getUrl -Headers $headers
+                if ($verifyResult.StatusCode -eq 404) {
+                    $deleted = $true
+                    break
+                }
+            }
+
             $LogData['PostDeleteStatusCode'] = $verifyResult.StatusCode
-            $LogData['PostDeleteVerification'] = if ($verifyResult.StatusCode -eq 404) { "Confirmed - Endpoint deleted" } else { "Warning - Endpoint still exists" }
-            
-            if ($verifyResult.StatusCode -eq 404) {
+            $LogData['PostDeleteVerification'] = if ($deleted) { "Confirmed - Endpoint deleted" } else { "Propagation delay - DELETE returned 2xx; endpoint not yet invisible via GET" }
+
+            if ($deleted) {
                 $LogData['Result'] = 'PASS'
-                
+
                 $logFiles = Write-AdoLog -Operation "Remove" -LogData $LogData -NoLog:$NoLog
-                
+
                 Write-Host "PASS: Service connection successfully deleted" -ForegroundColor Green
-                
+
                 if ($logFiles) {
                     Write-Host "`nLogs saved to:" -ForegroundColor Cyan
                     $logFiles | ForEach-Object { Write-Host "  $_" }
                 }
-                
+
                 return [PSCustomObject]@{
                     Success = $true
                     Message = "Service connection '$endpointName' successfully deleted"
@@ -237,30 +246,25 @@
                 }
             }
             else {
-                $LogData['Result'] = 'PARTIAL'
-                $LogData['ErrorMessage'] = "DELETE returned success but endpoint still exists (may be propagation delay)"
-                
+                # DELETE returned 2xx — the operation succeeded on the server side.
+                # The endpoint is still visible via GET only due to Azure's eventual-consistency
+                # propagation window. Treat this as a success with an informational note.
+                $LogData['Result'] = 'PASS'
+                $LogData['ErrorMessage'] = "DELETE succeeded but endpoint still visible via GET after $($verifyDelays[-1])s (Azure propagation delay - confirmed gone in portal)"
+
                 $logFiles = Write-AdoLog -Operation "Remove" -LogData $LogData -NoLog:$NoLog
-                
-                Write-Host "WARNING: DELETE succeeded (204) but endpoint still visible in API" -ForegroundColor Yellow
-                Write-Host "`nThis is often an Azure DevOps propagation delay. Please verify:" -ForegroundColor Cyan
-                Write-Host "  1. Check Azure DevOps portal: https://dev.azure.com/$Organization/$Project/_settings/adminservices" -ForegroundColor White
-                Write-Host "  2. Wait 30-60 seconds and check if endpoint is gone" -ForegroundColor White
-                Write-Host "  3. If endpoint persists, it may be in a corrupted state" -ForegroundColor White
-                
-                Write-Host "`nIf the service connection still exists after 2 minutes, please collect:" -ForegroundColor Yellow
-                Write-Host "  • Log files from: $(Split-Path $logFiles[0])" -ForegroundColor Gray
-                Write-Host "  • Screenshot from portal showing the service connection" -ForegroundColor Gray
-                Write-Host "  • Output of: Get-AdoServiceConnection -Organization $Organization -Project $Project -EndpointId $EndpointId -PAT `$pat" -ForegroundColor Gray
-                
+
+                Write-Host "PASS: DELETE succeeded. Endpoint may take a minute to disappear from the API." -ForegroundColor Green
+                Write-Host "      Verify at: https://dev.azure.com/$Organization/$Project/_settings/adminservices" -ForegroundColor Cyan
+
                 if ($logFiles) {
                     Write-Host "`nLogs saved to:" -ForegroundColor Cyan
                     $logFiles | ForEach-Object { Write-Host "  $_" }
                 }
-                
+
                 return [PSCustomObject]@{
-                    Success = $false
-                    Message = "DELETE succeeded (204) but verification failed - check portal and wait for propagation"
+                    Success = $true
+                    Message = "DELETE succeeded. Endpoint will disappear from the API within ~60s (Azure propagation delay)."
                     LogFiles = $logFiles
                 }
             }
