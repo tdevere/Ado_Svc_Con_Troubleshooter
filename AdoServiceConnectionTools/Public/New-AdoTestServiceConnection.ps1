@@ -186,10 +186,11 @@ function New-AdoTestServiceConnection {
     Write-Host ""
     Write-Host "  ✓ Test connection ready." -ForegroundColor Green
     Write-Host ""
+    $envSavedDisplay = if ($savedPath) { $savedPath } else { "No" }
     Write-Host "  Name       : $($createResult.Data.name)" -ForegroundColor Cyan
     Write-Host "  ID         : $endpointId"                -ForegroundColor Cyan
     Write-Host "  Type       : $($createResult.Data.type)" -ForegroundColor Cyan
-    Write-Host "  .env saved : $(if ($savedPath) { $savedPath } else { 'No' })" -ForegroundColor Cyan
+    Write-Host "  .env saved : $envSavedDisplay"           -ForegroundColor Cyan
     Write-Host ""
 
     return [PSCustomObject]@{
